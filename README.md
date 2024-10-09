@@ -17,5 +17,9 @@ bun run build
 ```
 
 ```sh
+bun run tauri dev
+```
+
+```sh
 bun run tauri build
 ```
