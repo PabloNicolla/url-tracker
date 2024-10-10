@@ -19,3 +19,51 @@
   color: #f6f6f6;
   background-color: #1a1a1a;
 }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100%;
+}
+
+#root {
+  height: 100%;
+  overflow: auto;
+}
+
+.overflow-y-auto {
+  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+}
+
+.overflow-y-auto::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  background: transparent;  /* Chrome/Safari/Webkit */
+}
+
+.hover\:overflow-y-scroll:hover {
+  scrollbar-width: thin;
+  scrollbar-color: #888888 #f1f1f1;  /* Firefox */
+}
+
+.hover\:overflow-y-scroll:hover::-webkit-scrollbar {
+  width: 10px;
+}
+
+.hover\:overflow-y-scroll:hover::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 0;  /* Square corners for the track */
+}
+
+.hover\:overflow-y-scroll:hover::-webkit-scrollbar-thumb {
+  background-color: #888888;
+  border-radius: 0;  /* Square corners for the thumb */
+  border: 2px solid #f1f1f1;  /* Creates a border around the thumb */
+}
+
+/* Hover effect for the thumb */
+.hover\:overflow-y-scroll:hover::-webkit-scrollbar-thumb:hover {
+  background-color: #555555;
+}
