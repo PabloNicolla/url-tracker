@@ -14,9 +14,7 @@ interface SidebarContextProps {
   animate: boolean;
 }
 
-const SidebarContext = createContext<SidebarContextProps | undefined>(
-  undefined,
-);
+const SidebarContext = createContext<SidebarContextProps | undefined>(undefined);
 
 export const useSidebar = () => {
   const context = useContext(SidebarContext);
@@ -42,11 +40,7 @@ export const SidebarProvider = ({
   const open = openProp ?? openState;
   const setOpen = setOpenProp ?? setOpenState;
 
-  return (
-    <SidebarContext.Provider value={{ open, setOpen, animate: animate }}>
-      {children}
-    </SidebarContext.Provider>
-  );
+  return <SidebarContext.Provider value={{ open, setOpen, animate: animate }}>{children}</SidebarContext.Provider>;
 };
 
 export const Sidebar = ({
@@ -71,11 +65,7 @@ export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
   return <DesktopSidebar {...props} />;
 };
 
-export const DesktopSidebar = ({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<typeof motion.div>) => {
+export const DesktopSidebar = ({ className, children, ...props }: React.ComponentProps<typeof motion.div>) => {
   const { open, setOpen, animate } = useSidebar();
   return (
     <motion.div
@@ -95,22 +85,12 @@ export const DesktopSidebar = ({
   );
 };
 
-export const SidebarItem = ({
-  sidebarItem,
-  className,
-  ...props
-}: {
-  sidebarItem: SidebarItem;
-  className?: string;
-}) => {
+export const SidebarItem = ({ sidebarItem, className, ...props }: { sidebarItem: SidebarItem; className?: string }) => {
   const { open, animate } = useSidebar();
   return (
     <button
       onClick={sidebarItem.action}
-      className={cn(
-        "group/sidebar flex w-full items-center justify-start gap-2 py-2 text-left",
-        className,
-      )}
+      className={cn("group/sidebar flex w-full items-center justify-start gap-2 py-2 text-left", className)}
       {...props}
     >
       {sidebarItem.icon}
