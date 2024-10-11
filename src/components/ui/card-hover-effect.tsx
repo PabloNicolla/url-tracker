@@ -11,6 +11,7 @@ export interface HoverEffectProps<T> {
   backgroundColor?: TailwindColor;
   darkBackgroundColor?: TailwindColor;
   hoverPadding?: React.CSSProperties["padding"];
+  hoverBorderRadius?: number;
 }
 
 export const HoverEffect = <T extends {}>({
@@ -20,6 +21,7 @@ export const HoverEffect = <T extends {}>({
   backgroundColor = "bg-neutral-200",
   darkBackgroundColor = "dark:bg-slate-800/[0.8]",
   hoverPadding,
+  hoverBorderRadius = 24,
 }: HoverEffectProps<T>) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
@@ -37,7 +39,8 @@ export const HoverEffect = <T extends {}>({
           <AnimatePresence>
             {hoveredIndex === idx && (
               <motion.span
-                className={cn("absolute inset-0 flex rounded-3xl", backgroundColor, darkBackgroundColor)}
+                style={{ borderRadius: hoverBorderRadius }}
+                className={cn("absolute inset-0 flex", backgroundColor, darkBackgroundColor)}
                 layoutId="hoverBackground"
                 initial={{ opacity: 0 }}
                 animate={{
