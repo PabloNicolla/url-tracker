@@ -27,7 +27,7 @@ function MenuItem({ title, actions }: MenuItemProps) {
 
   return (
     <DropdownMenu onOpenChange={setIsOpen}>
-      <DropdownMenuTrigger className={`px-2 py-1 rounded-md ${isOpen ? 'bg-purple-600/50' : 'hover:bg-purple-600/30'}`}>
+      <DropdownMenuTrigger className={`rounded-md px-2 py-1 ${isOpen ? "bg-purple-600/50" : "hover:bg-purple-600/30"}`}>
         {title}
       </DropdownMenuTrigger>
       <DropdownMenuContent className="z-50 rounded-md bg-fuchsia-500 py-1">
@@ -45,9 +45,9 @@ function MenuItem({ title, actions }: MenuItemProps) {
   );
 }
 
-interface Level0HeaderProps { }
+interface Level0HeaderProps {}
 
-function Level0Header({ }: Level0HeaderProps) {
+function Level0Header({}: Level0HeaderProps) {
   const [isMaximized, setIsMaximized] = useState(false);
 
   useEffect(() => {
@@ -68,14 +68,14 @@ function Level0Header({ }: Level0HeaderProps) {
   const testData: MenuItemProps = {
     title: "Title",
     actions: [
-      { title: "action1", onClick: () => { } },
-      { title: "action2", onClick: () => { } },
-      { title: "action3", onClick: () => { } },
+      { title: "action1", onClick: () => {} },
+      { title: "action2", onClick: () => {} },
+      { title: "action3", onClick: () => {} },
     ],
   };
 
   return (
-    <div className="z-50 flex w-full items-center bg-green-200 p-1 px-2" data-tauri-drag-region>
+    <div className="z-50 flex h-[32px] w-full items-center bg-green-200 px-2" data-tauri-drag-region>
       {/* App Logo */}
       <img
         src="/src-tauri/icons/icon.png"

@@ -83,3 +83,11 @@ body {
 .hover\:overflow-y-scroll:hover::-webkit-scrollbar-thumb:hover {
   background-color: rgba(100, 100, 100, 0.8);
 }
+
+/* No select Tooltip */
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}

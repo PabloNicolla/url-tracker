@@ -22,7 +22,7 @@ export default function App() {
             onResize={(size) => setLeftPanelSize(size)}
           >
             <Level1Sidebar />
-            <div>Left Panel Size: {leftPanelSize.toFixed(2)}%</div>
+            {/* <div>Left Panel Size: {leftPanelSize.toFixed(2)}%</div> */}
           </ResizablePanel>
           <ResizableHandle withHandle />
           <ResizablePanel
@@ -31,7 +31,7 @@ export default function App() {
             onResize={(size) => setRightPanelSize(size)}
           >
             <MainContentView />
-            <div>Right Panel Size: {rightPanelSize.toFixed(2)}%</div>
+            {/* <div>Right Panel Size: {rightPanelSize.toFixed(2)}%</div> */}
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>

@@ -31,7 +31,7 @@ function SidebarItem({
   onClick,
   isActive,
   badgeCount,
-}: SidebarItemProps) {
+}: Readonly<SidebarItemProps>) {
   return (
     <TooltipProvider>
       <Tooltip delayDuration={200}>
@@ -53,13 +53,13 @@ function SidebarItem({
             )}
             {isActive ? <ActiveIcon size={size} /> : <Icon size={size} />}
             {badgeCount !== undefined && badgeCount > 0 && (
-              <Badge className="absolute -right-1 bottom-0 flex h-[1.2rem] min-w-[1.2rem] items-center justify-center px-1 text-xs">
+              <Badge className="absolute bottom-0 right-0 flex h-[1.02rem] min-w-[1.02rem] items-center justify-center px-[0.2rem] text-[0.68rem]">
                 {badgeCount > 99 ? "99+" : badgeCount}
               </Badge>
             )}
           </button>
         </TooltipTrigger>
-        <TooltipContent side="right">
+        <TooltipContent side="right" className="no-select">
           <p>{title}</p>
         </TooltipContent>
       </Tooltip>
