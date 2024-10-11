@@ -24,7 +24,10 @@ export default function App() {
             <Level1Sidebar />
             {/* <div>Left Panel Size: {leftPanelSize.toFixed(2)}%</div> */}
           </ResizablePanel>
-          <ResizableHandle withHandle />
+          <ResizableHandle
+            withHandle
+            className="relative before:absolute before:-inset-x-[2px] before:inset-y-0 before:hover:bg-red-600"
+          />
           <ResizablePanel
             className="flex flex-col bg-orange-500"
             minSize={25}
