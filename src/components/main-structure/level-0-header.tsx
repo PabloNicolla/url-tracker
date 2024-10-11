@@ -3,6 +3,8 @@ import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose 
 import { useState, useEffect } from "react";
 import { HoverEffect } from "../ui/card-hover-effect";
 import MenuItem, { MenuItemProps } from "./level-0-menu-item";
+import { MenuSelectedProvider } from "@/contexts/MenuSelectedContext";
+import { MenuSelectionProvider } from "@/contexts/MenuSelectionContext";
 
 const appWindow = getCurrentWindow();
 
@@ -28,6 +30,7 @@ function Level0Header({}: Level0HeaderProps) {
 
   const items: MenuItemProps[] = [
     {
+      id: 1,
       title: "Menu Item 1",
       actions: [
         { title: "Action 1", onClick: () => console.log("Action 1 clicked") },
@@ -35,6 +38,7 @@ function Level0Header({}: Level0HeaderProps) {
       ],
     },
     {
+      id: 2,
       title: "Menu Item 2",
       actions: [
         { title: "Action 3", onClick: () => console.log("Action 3 clicked") },
@@ -42,6 +46,7 @@ function Level0Header({}: Level0HeaderProps) {
       ],
     },
     {
+      id: 3,
       title: "Menu Item 3",
       actions: [
         { title: "Action 5", onClick: () => console.log("Action 5 clicked") },
@@ -61,9 +66,13 @@ function Level0Header({}: Level0HeaderProps) {
       />
 
       {/* Menu */}
-      <div className="ml-2 flex flex-row gap-2 text-sm">
-        <HoverEffect Component={MenuItem} items={items} />
-      </div>
+      <MenuSelectedProvider>
+        <MenuSelectionProvider>
+          <div className="ml-2 flex flex-row gap-2 text-sm">
+            <HoverEffect Component={MenuItem} items={items} />
+          </div>
+        </MenuSelectionProvider>
+      </MenuSelectedProvider>
 
       {/* Window Controls */}
       <div className="ml-auto flex">

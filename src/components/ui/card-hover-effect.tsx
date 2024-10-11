@@ -28,7 +28,7 @@ export const HoverEffect = <T extends {}>({
   return (
     <div className={cn("flex flex-row", className)}>
       {items.map((item, idx) => (
-        <button
+        <div
           key={idx}
           tabIndex={0}
           style={{ padding: hoverPadding }}
@@ -58,7 +58,7 @@ export const HoverEffect = <T extends {}>({
             {/* Pass each item to the Component */}
             <Component {...item} />
           </span>
-        </button>
+        </div>
       ))}
     </div>
   );
