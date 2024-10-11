@@ -4,22 +4,19 @@ import { useState, useEffect } from "react";
 
 const appWindow = getCurrentWindow();
 
-interface Level0HeaderProps { }
+interface Level0HeaderProps {}
 
-function Level0Header({ }: Level0HeaderProps) {
+function Level0Header({}: Level0HeaderProps) {
   const [isMaximized, setIsMaximized] = useState(false);
 
   useEffect(() => {
     const checkMaximized = async () => {
       setIsMaximized(await appWindow.isMaximized());
     };
-
     checkMaximized();
-
     const unlistenMaximize = appWindow.onResized(checkMaximized);
-
     return () => {
-      unlistenMaximize.then(unlisten => unlisten());
+      unlistenMaximize.then((unlisten) => unlisten());
     };
   }, []);
 
@@ -46,29 +43,25 @@ function Level0Header({ }: Level0HeaderProps) {
       {/* Window Controls */}
       <div className="ml-auto flex">
         <button
-          className="p-1 hover:bg-gray-200 rounded-sm transition-colors"
+          className="rounded-sm p-1 transition-colors hover:bg-gray-200"
           onClick={() => appWindow.minimize()}
           aria-label="Minimize"
         >
-          <VscChromeMinimize className="w-4 h-4" />
+          <VscChromeMinimize className="h-4 w-4" />
         </button>
         <button
-          className="p-1 hover:bg-gray-200 rounded-sm transition-colors"
+          className="rounded-sm p-1 transition-colors hover:bg-gray-200"
           onClick={handleMaximizeToggle}
           aria-label={isMaximized ? "Restore" : "Maximize"}
         >
-          {isMaximized ? (
-            <VscChromeRestore className="w-4 h-4" />
-          ) : (
-            <VscChromeMaximize className="w-4 h-4" />
-          )}
+          {isMaximized ? <VscChromeRestore className="h-4 w-4" /> : <VscChromeMaximize className="h-4 w-4" />}
         </button>
         <button
-          className="p-1 hover:bg-red-500 hover:text-white rounded-sm transition-colors"
+          className="rounded-sm p-1 transition-colors hover:bg-red-500 hover:text-white"
           onClick={() => appWindow.close()}
           aria-label="Close"
         >
-          <VscChromeClose className="w-4 h-4" />
+          <VscChromeClose className="h-4 w-4" />
         </button>
       </div>
     </div>
