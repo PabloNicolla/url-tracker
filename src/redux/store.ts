@@ -1,11 +1,13 @@
 import { Action, configureStore, ThunkAction } from "@reduxjs/toolkit";
 
+import sidebar0Reducer from "@/redux/sidebar-level-0/sidebar-level-0-slice";
 import notificationsReducer from "@/redux/notifications/notifications-slice";
 
 import { listenerMiddleware } from "./listener-middleware";
 
 export const store = configureStore({
   reducer: {
+    sidebar0: sidebar0Reducer,
     notifications: notificationsReducer,
   },
 
