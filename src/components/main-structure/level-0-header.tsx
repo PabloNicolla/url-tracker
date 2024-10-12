@@ -1,10 +1,12 @@
-import { getCurrentWindow } from "@tauri-apps/api/window";
-import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose } from "react-icons/vsc";
 import { useState, useEffect } from "react";
-import { HoverEffect } from "../ui/card-hover-effect";
-import MenuItem, { MenuItemProps } from "./level-0-menu-item";
+import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose } from "react-icons/vsc";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+
 import { MenuSelectedProvider } from "@/contexts/MenuSelectedContext";
 import { MenuSelectionProvider } from "@/contexts/MenuSelectionContext";
+
+import { menuItems } from "@/data/header-level-0-data";
+import MenuItem from "./level-0-menu-item";
 
 const appWindow = getCurrentWindow();
 
@@ -28,33 +30,6 @@ function Level0Header({}: Level0HeaderProps) {
     await appWindow.toggleMaximize();
   };
 
-  const items: MenuItemProps[] = [
-    {
-      id: 1,
-      title: "Menu Item 1",
-      actions: [
-        { title: "Action 1", onClick: () => console.log("Action 1 clicked") },
-        { title: "Action 2", onClick: () => console.log("Action 2 clicked") },
-      ],
-    },
-    {
-      id: 2,
-      title: "Menu Item 2",
-      actions: [
-        { title: "Action 3", onClick: () => console.log("Action 3 clicked") },
-        { title: "Action 4", onClick: () => console.log("Action 4 clicked") },
-      ],
-    },
-    {
-      id: 3,
-      title: "Menu Item 3",
-      actions: [
-        { title: "Action 5", onClick: () => console.log("Action 5 clicked") },
-        { title: "Action 6", onClick: () => console.log("Action 6 clicked") },
-      ],
-    },
-  ];
-
   return (
     <div className="no-select z-50 flex h-[32px] w-full items-center bg-green-200 px-2" data-tauri-drag-region>
       {/* App Logo */}
@@ -69,7 +44,7 @@ function Level0Header({}: Level0HeaderProps) {
       <MenuSelectedProvider>
         <MenuSelectionProvider>
           <div className="ml-2 flex flex-row gap-2 text-sm">
-            {items.map(({ actions, id, title }, index) => (
+            {menuItems.map(({ actions, id, title }, index) => (
               <MenuItem actions={actions} id={id} title={title} key={index} />
             ))}
           </div>
