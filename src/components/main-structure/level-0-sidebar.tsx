@@ -52,7 +52,7 @@ function Level0Sidebar({}: Level0SidebarProps) {
   ];
 
   return (
-    <div className="flex h-full w-10 flex-col items-center bg-red-300">
+    <div className="no-select flex h-full w-10 flex-col items-center bg-red-300">
       <HoverEffect
         items={topItems}
         Component={SidebarItem}

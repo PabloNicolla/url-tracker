@@ -56,7 +56,7 @@ function Level0Header({}: Level0HeaderProps) {
   ];
 
   return (
-    <div className="z-50 flex h-[32px] w-full items-center bg-green-200 px-2" data-tauri-drag-region>
+    <div className="no-select z-50 flex h-[32px] w-full items-center bg-green-200 px-2" data-tauri-drag-region>
       {/* App Logo */}
       <img
         src="/src-tauri/icons/icon.png"
@@ -69,7 +69,9 @@ function Level0Header({}: Level0HeaderProps) {
       <MenuSelectedProvider>
         <MenuSelectionProvider>
           <div className="ml-2 flex flex-row gap-2 text-sm">
-            <HoverEffect Component={MenuItem} items={items} />
+            {items.map(({ actions, id, title }, index) => (
+              <MenuItem actions={actions} id={id} title={title} key={index} />
+            ))}
           </div>
         </MenuSelectionProvider>
       </MenuSelectedProvider>
