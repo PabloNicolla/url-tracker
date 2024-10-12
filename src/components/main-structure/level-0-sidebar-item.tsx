@@ -2,15 +2,15 @@ import { motion } from "framer-motion";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { IconType } from "react-icons";
 import { Badge } from "@/components/ui/badge";
+import { useAppDispatch, useAppSelector } from "@/redux/redux-hooks";
+import { selectSelectedSidebar, sidebarSelected } from "@/redux/sidebar-level-0/sidebar-level-0-slice";
+import { Sidebar0ItemsIdsType } from "@/data/sidebar-level-0-data";
 
 export interface SidebarItemProps {
-  title: string;
+  title: Sidebar0ItemsIdsType;
   icon: IconType;
   activeIcon: IconType;
-  isActive: boolean;
-  onClick: () => void;
   size?: number;
-  badgeCount?: number;
   hoverEffect?: boolean;
 }
 
@@ -19,11 +19,17 @@ function SidebarItem({
   activeIcon: ActiveIcon,
   size = 24,
   title,
-  onClick,
-  isActive,
-  badgeCount,
   hoverEffect,
 }: Readonly<SidebarItemProps>) {
+  const isActive = useAppSelector(selectSelectedSidebar) === title;
+  const dispatch = useAppDispatch();
+
+  const onClick = () => {
+    dispatch(sidebarSelected(title));
+  };
+
+  const badgeCount = 2;
+
   const tw_BgColor = isActive ? "bg-red-400" : "";
   const tw_hover = hoverEffect ? "hover:bg-red-400" : "";
   return (
