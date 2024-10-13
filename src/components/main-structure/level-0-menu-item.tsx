@@ -7,25 +7,25 @@ import {
 } from "@radix-ui/react-dropdown-menu";
 import { useMenuSelection } from "@/contexts/MenuSelectionContext";
 import { SelectedMenuActionType } from "@/contexts/MenuSelectedContext";
-
-export interface MenuItemActions {
-  title: string;
-  onClick: () => void;
-}
-
-export interface MenuItemProps {
-  id: number;
-  title: string;
-  actions: MenuItemActions[];
-}
+import { useAppDispatch } from "@/redux/redux-hooks";
+import { MenuItemProps, MenuItemAction } from "@/data/header-level-0-data";
 
 function MenuItem({ id, title, actions }: MenuItemProps) {
   const { selectMenuHandler } = useMenuSelection();
   const [isOpen, setIsOpen] = useState(false);
+  const dispatch = useAppDispatch();
 
   const handleModeChange = (newState: boolean, action: SelectedMenuActionType) => {
     const controlledState = selectMenuHandler(id, newState, action);
     setIsOpen(controlledState);
+  };
+
+  const handleAction = (action: MenuItemAction) => {
+    if (action.type === "dispatch") {
+      dispatch({ type: action.action, payload: action.payload });
+    } else if (action.type === "function") {
+      action.handler();
+    }
   };
 
   return (
@@ -48,9 +48,7 @@ function MenuItem({ id, title, actions }: MenuItemProps) {
         {actions.map((action) => (
           <DropdownMenuItem
             key={action.title}
-            onClick={() => {
-              action.onClick();
-            }}
+            onClick={() => handleAction(action.action)}
             className="mx-1 cursor-pointer rounded-md px-3 py-1 hover:bg-purple-600/50"
           >
             {action.title}

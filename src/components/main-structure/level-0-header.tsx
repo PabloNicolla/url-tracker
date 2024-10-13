@@ -43,7 +43,7 @@ function Level0Header({}: Level0HeaderProps) {
       {/* Menu */}
       <MenuSelectedProvider>
         <MenuSelectionProvider>
-          <div className="ml-2 flex flex-row gap-2 text-sm">
+          <div className="ml-2 flex flex-row text-sm">
             {menuItems.map(({ actions, id, title }, index) => (
               <MenuItem actions={actions} id={id} title={title} key={index} />
             ))}
