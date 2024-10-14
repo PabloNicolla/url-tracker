@@ -12,6 +12,7 @@ export interface Item {
   type: "File" | "Folder";
   parentId?: string; // parent reference
   childrenIds: string[]; // children references
+  isExpanded?: boolean; // New property
 }
 
 interface ItemsState {
@@ -25,6 +26,7 @@ export const ___ROOT: Item = {
   type: "Folder",
   parentId: undefined,
   childrenIds: [],
+  isExpanded: true, // Set initial state
 };
 
 const initialState: ItemsState = {
@@ -207,6 +209,13 @@ const sidebar1Slice = createSlice({
         },
       };
     },
+    sidebar1ToggleExpanded(state, action: PayloadAction<{ itemId: Item["id"] }>) {
+      const { itemId } = action.payload;
+      const item = state.byId[itemId];
+      if (item && item.type === "Folder") {
+        item.isExpanded = !item.isExpanded;
+      }
+    },
   },
   selectors: {
     selectItemsById: (sidebarState) => sidebarState.byId,
@@ -222,7 +231,7 @@ export default sidebar1Slice.reducer;
 
 export const { selectItemById, selectItemsById } = sidebar1Slice.selectors;
 
-export const { sidebar1Added, sidebar1Moved, sidebar1Removed } = sidebar1Slice.actions;
+export const { sidebar1Added, sidebar1Moved, sidebar1Removed, sidebar1ToggleExpanded } = sidebar1Slice.actions;
 
 //////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////// Custom Selector Exports

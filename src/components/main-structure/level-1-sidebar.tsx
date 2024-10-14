@@ -6,9 +6,10 @@ import {
   selectChildrenOfItem,
   selectItemById,
   sidebar1Moved,
+  sidebar1ToggleExpanded,
 } from "@/redux/sidebar-level-1/sidebar-level-1-slice";
 import "./level-1-sidebar.css";
-import { ChevronDown, ChevronRight, Folder, File } from "lucide-react"; // Update this import
+import { ChevronDown, ChevronRight, File, FolderOpen, FolderClosed } from "lucide-react";
 
 function Draggable({ id, children }: Readonly<{ id: number | string; children: React.ReactNode }>) {
   const { attributes, listeners, setNodeRef } = useDraggable({
@@ -62,19 +63,9 @@ const TreeNode: React.FC<TreeNodeProps> = memo(
   ({ itemId, depth }) => {
     const item = useAppSelector((state) => selectItemById(state, itemId));
     const children = useAppSelector((state) => selectChildrenOfItem(state, itemId));
-    const [isExpanded, setIsExpanded] = useState(true);
+    const dispatch = useAppDispatch();
 
     console.log(itemId, "is updating children: ", children, depth);
-
-    let WrapperDnd = DragAndDroppable;
-
-    if (item.type === "File") {
-      WrapperDnd = Draggable;
-    }
-
-    if (itemId === ___ROOT.id) {
-      WrapperDnd = Droppable;
-    }
 
     const LeftBorder = () => {
       return (
@@ -83,7 +74,7 @@ const TreeNode: React.FC<TreeNodeProps> = memo(
             left: (depth - 1 <= 0 ? 0 : depth - 1) * 20,
             width: depth - 1 <= 0 ? 0 : 1,
           }}
-          className="absolute left-0 -z-40 h-full bg-black"
+          className="absolute left-0 z-40 h-full bg-black"
         />
       );
     };
@@ -95,19 +86,32 @@ const TreeNode: React.FC<TreeNodeProps> = memo(
         <button
           onClick={(e) => {
             e.stopPropagation();
-            setIsExpanded(!isExpanded);
+            dispatch(sidebar1ToggleExpanded({ itemId: item.id }));
           }}
-          className="absolute top-1 z-50 bg-purple-500"
+          className="absolute top-1 bg-purple-500"
           style={{
             left: (depth - 1 <= 0 ? 0 : depth - 1) * 20 + (depth <= 0 ? 0 : 13),
+            zIndex: 2000,
           }}
         >
-          {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+          {item.isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
         </button>
       );
     };
 
     const ItemDataDisplay = () => {
+      let ItemSymbol: JSX.Element | null = null;
+
+      if (item.type === "File") {
+        ItemSymbol = <File size={16} className="mr-2" />;
+      } else if (item.type === "Folder") {
+        if (item.isExpanded) {
+          ItemSymbol = <FolderOpen size={16} className="mr-2" />;
+        } else {
+          ItemSymbol = <FolderClosed size={16} className="mr-2" />;
+        }
+      }
+
       return (
         <span
           style={{
@@ -115,29 +119,81 @@ const TreeNode: React.FC<TreeNodeProps> = memo(
           }}
           className="flex items-center"
         >
-          {item.type === "File" ? <File size={16} className="mr-2" /> : <Folder size={16} className="mr-2" />}
+          {ItemSymbol}
           {item.name}
         </span>
       );
     };
 
-    return (
-      <div className="relative">
-        <CollapsibleButton />
-        <WrapperDnd id={itemId}>
-          <div
-            className={`tree-node relative w-full`}
-            style={{
-              zIndex: depth,
-            }}
-          >
+    const RoT = () => {
+      return (
+        <div className="relative">
+          <Droppable id={itemId}>
             <LeftBorder />
-            <ItemDataDisplay />
-          </div>
-        </WrapperDnd>
-        {isExpanded && children?.map((c_id) => <TreeNode key={c_id} itemId={c_id} depth={depth + 1} />)}
-      </div>
-    );
+            <CollapsibleButton />
+            <div
+              className={`tree-node relative w-full`}
+              style={{
+                zIndex: depth,
+              }}
+            >
+              <ItemDataDisplay />
+            </div>
+            {item.isExpanded && children?.map((c_id) => <TreeNode key={c_id} itemId={c_id} depth={depth + 1} />)}
+          </Droppable>
+        </div>
+      );
+    };
+
+    const Fot = () => {
+      return (
+        <div className="relative">
+          <Droppable id={itemId}>
+            <LeftBorder />
+            <CollapsibleButton />
+            <Draggable id={itemId}>
+              <div
+                className={`tree-node relative w-full`}
+                style={{
+                  zIndex: depth,
+                }}
+              >
+                <ItemDataDisplay />
+              </div>
+            </Draggable>
+            {item.isExpanded && children?.map((c_id) => <TreeNode key={c_id} itemId={c_id} depth={depth + 1} />)}
+          </Droppable>
+        </div>
+      );
+    };
+
+    const Fil = () => {
+      return (
+        <div className="relative">
+          <LeftBorder />
+          <CollapsibleButton />
+          <Draggable id={itemId}>
+            <div
+              className={`tree-node relative w-full`}
+              style={{
+                zIndex: depth,
+              }}
+            >
+              <ItemDataDisplay />
+            </div>
+          </Draggable>
+          {item.isExpanded && children?.map((c_id) => <TreeNode key={c_id} itemId={c_id} depth={depth + 1} />)}
+        </div>
+      );
+    };
+
+    if (item.id === ___ROOT.id) {
+      return <RoT />;
+    } else if (item.type === "Folder") {
+      return <Fot />;
+    }
+
+    return <Fil />;
   },
   (prevProps, nextProps) => prevProps.itemId === nextProps.itemId,
 );
