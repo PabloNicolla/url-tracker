@@ -3,12 +3,12 @@ import { DndContext, DragOverlay, useDraggable, useDroppable, DragStartEvent, Dr
 import { useAppDispatch, useAppSelector } from "@/redux/redux-hooks";
 import {
   ___ROOT,
-  Item,
   selectChildrenOfItem,
   selectItemById,
   sidebar1Moved,
 } from "@/redux/sidebar-level-1/sidebar-level-1-slice";
 import "./level-1-sidebar.css";
+import { ChevronDown, ChevronRight, Folder, File } from "lucide-react"; // Update this import
 
 function Draggable({ id, children }: Readonly<{ id: number | string; children: React.ReactNode }>) {
   const { attributes, listeners, setNodeRef } = useDraggable({
@@ -62,6 +62,7 @@ const TreeNode: React.FC<TreeNodeProps> = memo(
   ({ itemId, depth }) => {
     const item = useAppSelector((state) => selectItemById(state, itemId));
     const children = useAppSelector((state) => selectChildrenOfItem(state, itemId));
+    const [isExpanded, setIsExpanded] = useState(true);
 
     console.log(itemId, "is updating children: ", children, depth);
 
@@ -75,33 +76,67 @@ const TreeNode: React.FC<TreeNodeProps> = memo(
       WrapperDnd = Droppable;
     }
 
-    return (
-      <WrapperDnd id={itemId}>
+    const LeftBorder = () => {
+      return (
         <div
-          className={`tree-node relative w-full`}
           style={{
-            zIndex: depth,
+            left: (depth - 1 <= 0 ? 0 : depth - 1) * 20,
+            width: depth - 1 <= 0 ? 0 : 1,
+          }}
+          className="absolute left-0 -z-40 h-full bg-black"
+        />
+      );
+    };
+
+    const CollapsibleButton = () => {
+      if (item.type === "File") return null;
+
+      return (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsExpanded(!isExpanded);
+          }}
+          className="absolute top-1 z-50 bg-purple-500"
+          style={{
+            left: (depth - 1 <= 0 ? 0 : depth - 1) * 20 + (depth <= 0 ? 0 : 13),
           }}
         >
+          {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+        </button>
+      );
+    };
+
+    const ItemDataDisplay = () => {
+      return (
+        <span
+          style={{
+            marginLeft: 18 * (depth + 1),
+          }}
+          className="flex items-center"
+        >
+          {item.type === "File" ? <File size={16} className="mr-2" /> : <Folder size={16} className="mr-2" />}
+          {item.name}
+        </span>
+      );
+    };
+
+    return (
+      <div className="relative">
+        <CollapsibleButton />
+        <WrapperDnd id={itemId}>
           <div
+            className={`tree-node relative w-full`}
             style={{
-              left: (depth - 1 <= 0 ? 0 : depth - 1) * 20,
-              width: depth - 1 <= 0 ? 0 : 1,
-            }}
-            className="absolute left-0 -z-40 h-full bg-black"
-          />
-          <span
-            style={{
-              marginLeft: 20 * depth,
+              zIndex: depth,
             }}
           >
-            {`${item.type}: ${item.name}`}
-          </span>
-          {children?.map((c_id) => {
-            return <TreeNode key={c_id} itemId={c_id} depth={depth + 1} />;
-          })}
-        </div>
-      </WrapperDnd>
+            <LeftBorder />
+            <ItemDataDisplay />
+          </div>
+        </WrapperDnd>
+        {isExpanded && children?.map((c_id) => <TreeNode key={c_id} itemId={c_id} depth={depth + 1} />)}
+      </div>
     );
   },
   (prevProps, nextProps) => prevProps.itemId === nextProps.itemId,
@@ -115,14 +150,14 @@ function Level1Sidebar() {
 
   useEffect(() => {
     if (activeId !== null) {
-      document.body.classList.add('dragging-file-cursor');
+      document.body.classList.add("dragging-file-cursor");
     } else {
-      document.body.classList.remove('dragging-file-cursor');
+      document.body.classList.remove("dragging-file-cursor");
     }
 
     // Cleanup function
     return () => {
-      document.body.classList.remove('dragging-file-cursor');
+      document.body.classList.remove("dragging-file-cursor");
     };
   }, [activeId]);
 
