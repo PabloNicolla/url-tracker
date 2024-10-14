@@ -1,37 +1,15 @@
-import React, { memo, useState } from "react";
-import {
-  DndContext,
-  DragOverlay,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  useDraggable,
-  useDroppable,
-  DragStartEvent,
-  DragEndEvent,
-} from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import React, { memo, useEffect, useRef, useState } from "react";
+import { DndContext, DragOverlay, useDraggable, useDroppable, DragStartEvent, DragEndEvent } from "@dnd-kit/core";
 import { useAppDispatch, useAppSelector } from "@/redux/redux-hooks";
 import {
   ___ROOT,
   selectChildrenOfItem,
   selectItemById,
-  selectItemsById,
   sidebar1Moved,
 } from "@/redux/sidebar-level-1/sidebar-level-1-slice";
+import { color } from "framer-motion";
 
-interface ItemType {
-  id: number;
-  title: string;
-  type: "file" | "folder";
-  depth: number;
-  childrenItems?: ItemType[];
-}
-
-function Draggable({ id, children }: { id: number | string; children: React.ReactNode }) {
+function Draggable({ id, children }: Readonly<{ id: number | string; children: React.ReactNode }>) {
   const { attributes, listeners, setNodeRef } = useDraggable({
     id: id,
   });
@@ -43,15 +21,66 @@ function Draggable({ id, children }: { id: number | string; children: React.Reac
   );
 }
 
-function Droppable({ id, children }: { id: number | string; children: React.ReactNode }) {
-  const { setNodeRef } = useDroppable({
+function Droppable({ id, children }: Readonly<{ id: number | string; children: React.ReactNode }>) {
+  const { setNodeRef, isOver } = useDroppable({
     id: id,
   });
 
-  return <div ref={setNodeRef}>{children}</div>;
+  const [overHalf, setOverHalf] = useState<"top" | "bottom" | null>(null);
+  const droppableRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    function handlePointerMove(event: PointerEvent) {
+      if (droppableRef.current && isOver) {
+        const rect = droppableRef.current.getBoundingClientRect();
+        const midpoint = rect.top + rect.height / 2;
+
+        // Compare pointer Y position with midpoint
+        if (event.clientY < midpoint) {
+          setOverHalf("top");
+        } else {
+          setOverHalf("bottom");
+        }
+      } else {
+        setOverHalf(null); // Reset when not hovering
+      }
+    }
+
+    if (isOver) {
+      window.addEventListener("pointermove", handlePointerMove);
+    } else {
+      setOverHalf(null); // Reset when drag ends
+    }
+
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+    };
+  }, [isOver]);
+
+  const style = {
+    backgroundColor: isOver
+      ? overHalf === "top"
+        ? "lightblue" // Change color if over the top half
+        : "lightgreen" // Change color if over the bottom half
+      : "white", // Default background
+    color: "black",
+    transition: "background-color 0.2s ease",
+  };
+
+  return (
+    <div
+      ref={(node) => {
+        setNodeRef(node);
+        droppableRef.current = node;
+      }}
+      style={style}
+    >
+      {children}
+    </div>
+  );
 }
 
-function DragAndDroppable({ id, children }: { id: number | string; children: React.ReactNode }) {
+function DragAndDroppable({ id, children }: Readonly<{ id: number | string; children: React.ReactNode }>) {
   return (
     <Draggable id={id}>
       <Droppable id={id}>{children}</Droppable>
@@ -59,29 +88,13 @@ function DragAndDroppable({ id, children }: { id: number | string; children: Rea
   );
 }
 
-// function Item({ id, title, type, depth, childrenItems }: ItemType) {
-//   return (
-//     <div>
-//       {`${type}: ${title}`}
-//       {childrenItems?.map((item) => {
-//         return (
-//           <DragAndDroppable key={item.id} id={item.id}>
-//             <Item
-//               id={item.id}
-//               depth={depth + 1}
-//               title={item.title}
-//               type={item.type}
-//               childrenItems={item.childrenItems}
-//             />
-//           </DragAndDroppable>
-//         );
-//       })}
-//     </div>
-//   );
-// }
+interface TreeNodeProps {
+  itemId: string;
+  depth: number;
+}
 
-const TreeNode = memo(
-  ({ itemId, depth }: { itemId: string; depth: number }) => {
+const TreeNode: React.FC<TreeNodeProps> = memo(
+  ({ itemId, depth }) => {
     const item = useAppSelector((state) => selectItemById(state, itemId));
     const children = useAppSelector((state) => selectChildrenOfItem(state, itemId));
 
@@ -94,9 +107,11 @@ const TreeNode = memo(
 
     return (
       <div
+        className={`tree-node depth-${depth}`}
         style={{
           paddingLeft: 20,
-          backgroundColor: getBackgroundColor(depth),
+          // backgroundColor: getBackgroundColor(depth),
+          zIndex: depth,
         }}
       >
         {`${item.type}: ${item.name}`}

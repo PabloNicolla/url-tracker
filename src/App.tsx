@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./App.css"; // Make sure to import your CSS
+import "./App.css";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "./components/ui/resizable";
 import Level1Sidebar from "./components/main-structure/level-1-sidebar";
 import Level0Sidebar from "./components/main-structure/level-0-sidebar";
