@@ -14,13 +14,13 @@
   -webkit-text-size-adjust: 100%;
 }
 
-/* Dark mode styles */
+/* ============================================== Dark mode styles ==============================================*/
 :root.dark {
   color: #f6f6f6;
   background-color: #1a1a1a;
 }
 
-/* Desktop page behavior */
+/* ============================================== Desktop page behavior ==============================================*/
 html,
 body {
   margin: 0;
@@ -34,7 +34,7 @@ body {
   overflow: auto;
 }
 
-/* scrollbar */
+/* ============================================== scrollbar ==============================================*/
 .overflow-auto,
 .overflow-x-auto,
 .overflow-y-auto {
@@ -86,26 +86,11 @@ body {
   background-color: rgba(100, 100, 100, 0.8);
 }
 
-/* No select Tooltip */
+/* ============================================== No select  ==============================================*/
+/* CSS class to prevent user from selecting text*/
 .no-select {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
-
-/* Sidebar-1 Hierarchical List Hover */
-/* Base style for tree nodes */
-.tree-node {
-  transition: background-color 0.2s ease;
-}
-
-/* Hover effect for parent, only when directly hovered */
-.tree-node:hover:not(:has(:hover)) {
-  background-color: #ffeb3b;
-}
-
-/* Hover effect for child */
-/* .tree-node .tree-node:hover {
-  background-color: #ffeb3b;
-} */

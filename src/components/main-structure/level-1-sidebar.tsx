@@ -1,13 +1,14 @@
-import React, { memo, useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { DndContext, DragOverlay, useDraggable, useDroppable, DragStartEvent, DragEndEvent } from "@dnd-kit/core";
 import { useAppDispatch, useAppSelector } from "@/redux/redux-hooks";
 import {
   ___ROOT,
+  Item,
   selectChildrenOfItem,
   selectItemById,
   sidebar1Moved,
 } from "@/redux/sidebar-level-1/sidebar-level-1-slice";
-import { color } from "framer-motion";
+import "./level-1-sidebar.css";
 
 function Draggable({ id, children }: Readonly<{ id: number | string; children: React.ReactNode }>) {
   const { attributes, listeners, setNodeRef } = useDraggable({
@@ -79,13 +80,21 @@ const TreeNode: React.FC<TreeNodeProps> = memo(
         <div
           className={`tree-node relative w-full`}
           style={{
-            // paddingLeft: 20,
             zIndex: depth,
-            // borderLeftWidth: 1,
-            // borderColor: "black",
           }}
         >
-          <span style={{ marginLeft: 20 * depth }} className="">
+          <div
+            style={{
+              left: (depth - 1 <= 0 ? 0 : depth - 1) * 20,
+              width: depth - 1 <= 0 ? 0 : 1,
+            }}
+            className="absolute left-0 -z-40 h-full bg-black"
+          />
+          <span
+            style={{
+              marginLeft: 20 * depth,
+            }}
+          >
             {`${item.type}: ${item.name}`}
           </span>
           {children?.map((c_id) => {
@@ -101,14 +110,15 @@ const TreeNode: React.FC<TreeNodeProps> = memo(
 function Level1Sidebar() {
   const [activeId, setActiveId] = useState<string | number | null>(null);
   const _root = useAppSelector((state) => selectItemById(state, ___ROOT.id));
+  const selectedItem = useAppSelector((state) => selectItemById(state, String(activeId)));
   const dispatch = useAppDispatch();
 
   return (
-    <div className="flex flex-1 overflow-y-auto overflow-x-hidden hover:overflow-y-scroll">
+    <div className="no-select flex flex-1 overflow-y-auto overflow-x-hidden hover:overflow-y-scroll">
       <div className="flex w-full min-w-max flex-1 flex-col">
         <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           <TreeNode itemId={_root.id} depth={0} />
-          <DragOverlay>{activeId ? <div>Item selected id: {activeId}</div> : null}</DragOverlay>
+          <DragOverlay>{selectedItem ? <div>{`${selectedItem.name}`}</div> : null}</DragOverlay>
         </DndContext>
       </div>
     </div>
@@ -126,25 +136,6 @@ function Level1Sidebar() {
       dispatch(sidebar1Moved({ movedItemId: String(active.id), newParentId: String(over.id) }));
     }
   }
-
-  // return (
-  //   <div className="flex-1 overflow-y-auto overflow-x-hidden hover:overflow-y-scroll">
-  //     <div className="w-full min-w-max">
-  //       <DndContext
-  //         sensors={sensors}
-  //         collisionDetection={closestCenter}
-  //         onDragEnd={handleDragEnd}
-  //         modifiers={[restrictToVerticalAxis]}
-  //       >
-  //         <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
-  //           {items.map((item) => (
-  //             <SortableExplorerItem key={item.id} item={item} depth={0} onItemClick={handleItemClick} />
-  //           ))}
-  //         </SortableContext>
-  //       </DndContext>
-  //     </div>
-  //   </div>
-  // );
 }
 
 export default Level1Sidebar;

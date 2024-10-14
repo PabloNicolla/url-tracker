@@ -1,0 +1,20 @@
+/* ============================================== Sidebar-1 Hierarchical List Hover ==============================================*/
+
+/* Base style for tree nodes */
+.tree-node {
+  transition: background-color 0.2s ease;
+}
+
+/* Hover effect for parent, only when directly hovered */
+.tree-node:hover:not(:has(:hover)) {
+  background-color: #ffeb3b;
+}
+
+/* Hover effect for child */
+/* .tree-node .tree-node:hover {
+  background-color: #ffeb3b;
+} */
+
+.tree-node span {
+  pointer-events: none; /* Ensure span does not block the hover event */
+}
