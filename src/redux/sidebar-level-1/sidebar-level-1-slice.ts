@@ -19,7 +19,7 @@ interface ItemsState {
   allIds: string[]; // This helps with easy iteration if needed
 }
 
-const ___ROOT: Item = {
+export const ___ROOT: Item = {
   id: "___ROOT",
   name: "___ROOT",
   type: "Folder",

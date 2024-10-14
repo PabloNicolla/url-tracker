@@ -14,7 +14,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { useAppSelector } from "@/redux/redux-hooks";
-import { selectItemById, selectItemsById } from "@/redux/sidebar-level-1/sidebar-level-1-slice";
+import { ___ROOT, selectItemById, selectItemsById } from "@/redux/sidebar-level-1/sidebar-level-1-slice";
 
 interface ItemType {
   id: number;
@@ -52,30 +52,30 @@ function DragAndDroppable({ id, children }: { id: number | string; children: Rea
   );
 }
 
-function Item({ id, title, type, depth, childrenItems }: ItemType) {
-  return (
-    <div>
-      {`${type}: ${title}`}
-      {childrenItems?.map((item) => {
-        return (
-          <DragAndDroppable key={item.id} id={item.id}>
-            <Item
-              id={item.id}
-              depth={depth + 1}
-              title={item.title}
-              type={item.type}
-              childrenItems={item.childrenItems}
-            />
-          </DragAndDroppable>
-        );
-      })}
-    </div>
-  );
-}
+// function Item({ id, title, type, depth, childrenItems }: ItemType) {
+//   return (
+//     <div>
+//       {`${type}: ${title}`}
+//       {childrenItems?.map((item) => {
+//         return (
+//           <DragAndDroppable key={item.id} id={item.id}>
+//             <Item
+//               id={item.id}
+//               depth={depth + 1}
+//               title={item.title}
+//               type={item.type}
+//               childrenItems={item.childrenItems}
+//             />
+//           </DragAndDroppable>
+//         );
+//       })}
+//     </div>
+//   );
+// }
 
 function TreeNode({ itemId }: { itemId: string }) {
   const item = useAppSelector((state) => selectItemById(state, itemId));
-  const children = useAppSelector((state) => selectChildrenOfItem(state, itemId));
+  // const children = useAppSelector((state) => selectChildrenOfItem(state, itemId));
 
   return (
     <div>
@@ -164,19 +164,11 @@ function Level1Sidebar() {
   //     depth: 0,
   //   },
   // ];
-
-  const items = useAppSelector((state) => selectItemsById(state));
-
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | number | null>(null);
 
   return (
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      {items.map((item) => (
-        <DragAndDroppable key={item.id} id={item.id}>
-          <Item id={item.id} depth={1} title={item.title} type={item.type} childrenItems={item.childrenItems} />
-        </DragAndDroppable>
-      ))}
-
+      <TreeNode itemId={___ROOT.id} />
       <DragOverlay>{activeId ? <div>Item selected id: {activeId}</div> : null}</DragOverlay>
     </DndContext>
   );
