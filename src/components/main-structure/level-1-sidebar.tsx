@@ -13,6 +13,8 @@ import {
 } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { useAppSelector } from "@/redux/redux-hooks";
+import { selectItemById, selectItemsById } from "@/redux/sidebar-level-1/sidebar-level-1-slice";
 
 interface ItemType {
   id: number;
@@ -22,7 +24,7 @@ interface ItemType {
   childrenItems?: ItemType[];
 }
 
-function Draggable({ id, children }: { id: number; children: React.ReactNode }) {
+function Draggable({ id, children }: { id: number | string; children: React.ReactNode }) {
   const { attributes, listeners, setNodeRef } = useDraggable({
     id: id,
   });
@@ -34,7 +36,7 @@ function Draggable({ id, children }: { id: number; children: React.ReactNode }) 
   );
 }
 
-function Droppable({ id, children }: { id: number; children: React.ReactNode }) {
+function Droppable({ id, children }: { id: number | string; children: React.ReactNode }) {
   const { setNodeRef } = useDroppable({
     id: id,
   });
@@ -42,7 +44,7 @@ function Droppable({ id, children }: { id: number; children: React.ReactNode }) 
   return <div ref={setNodeRef}>{children}</div>;
 }
 
-function DragAndDroppable({ id, children }: { id: number; children: React.ReactNode }) {
+function DragAndDroppable({ id, children }: { id: number | string; children: React.ReactNode }) {
   return (
     <Draggable id={id}>
       <Droppable id={id}>{children}</Droppable>
@@ -71,81 +73,101 @@ function Item({ id, title, type, depth, childrenItems }: ItemType) {
   );
 }
 
-function Level1Sidebar() {
-  const items: ItemType[] = [
-    {
-      id: 1,
-      title: "Root Folder 1",
-      type: "folder",
-      depth: 0,
-      childrenItems: [
-        {
-          id: 2,
-          title: "Subfolder 1-1",
-          type: "folder",
-          depth: 1,
-          childrenItems: [
-            {
-              id: 3,
-              title: "File 1-1-1",
-              type: "file",
-              depth: 2,
-            },
-            {
-              id: 4,
-              title: "Subfolder 1-1-2",
-              type: "folder",
-              depth: 2,
-              childrenItems: [
-                {
-                  id: 5,
-                  title: "File 1-1-2-1",
-                  type: "file",
-                  depth: 3,
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 6,
-      title: "File 1",
-      type: "file",
-      depth: 0,
-    },
-    {
-      id: 7,
-      title: "Root Folder 2",
-      type: "folder",
-      depth: 0,
-      childrenItems: [
-        {
-          id: 8,
-          title: "Subfolder 2-1",
-          type: "folder",
-          depth: 1,
-          childrenItems: [
-            {
-              id: 9,
-              title: "File 2-1-1",
-              type: "file",
-              depth: 2,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 10,
-      title: "File 2",
-      type: "file",
-      depth: 0,
-    },
-  ];
+function TreeNode({ itemId }: { itemId: string }) {
+  const item = useAppSelector((state) => selectItemById(state, itemId));
+  const children = useAppSelector((state) => selectChildrenOfItem(state, itemId));
 
-  const [activeId, setActiveId] = useState<number | null>(null);
+  return (
+    <div>
+      {`${item.type}: ${item.name}`}
+      {item.childrenIds?.map((c_id) => {
+        return (
+          <DragAndDroppable key={item.id} id={c_id}>
+            <TreeNode itemId={c_id} />
+          </DragAndDroppable>
+        );
+      })}
+    </div>
+  );
+}
+
+function Level1Sidebar() {
+  // const items: ItemType[] = [
+  //   {
+  //     id: 1,
+  //     title: "Root Folder 1",
+  //     type: "folder",
+  //     depth: 0,
+  //     childrenItems: [
+  //       {
+  //         id: 2,
+  //         title: "Subfolder 1-1",
+  //         type: "folder",
+  //         depth: 1,
+  //         childrenItems: [
+  //           {
+  //             id: 3,
+  //             title: "File 1-1-1",
+  //             type: "file",
+  //             depth: 2,
+  //           },
+  //           {
+  //             id: 4,
+  //             title: "Subfolder 1-1-2",
+  //             type: "folder",
+  //             depth: 2,
+  //             childrenItems: [
+  //               {
+  //                 id: 5,
+  //                 title: "File 1-1-2-1",
+  //                 type: "file",
+  //                 depth: 3,
+  //               },
+  //             ],
+  //           },
+  //         ],
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     id: 6,
+  //     title: "File 1",
+  //     type: "file",
+  //     depth: 0,
+  //   },
+  //   {
+  //     id: 7,
+  //     title: "Root Folder 2",
+  //     type: "folder",
+  //     depth: 0,
+  //     childrenItems: [
+  //       {
+  //         id: 8,
+  //         title: "Subfolder 2-1",
+  //         type: "folder",
+  //         depth: 1,
+  //         childrenItems: [
+  //           {
+  //             id: 9,
+  //             title: "File 2-1-1",
+  //             type: "file",
+  //             depth: 2,
+  //           },
+  //         ],
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     id: 10,
+  //     title: "File 2",
+  //     type: "file",
+  //     depth: 0,
+  //   },
+  // ];
+
+  const items = useAppSelector((state) => selectItemsById(state));
+
+  const [activeId, setActiveId] = useState<string | null>(null);
 
   return (
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
@@ -160,8 +182,8 @@ function Level1Sidebar() {
   );
 
   function handleDragStart(event: DragStartEvent) {
-    console.log("is this working?", Number(event.active.id));
-    setActiveId(Number(event.active.id));
+    console.log("is this working?");
+    setActiveId(event.active.id);
   }
 
   function handleDragEnd() {
@@ -189,3 +211,12 @@ function Level1Sidebar() {
 }
 
 export default Level1Sidebar;
+function selectChildrenOfItem(
+  state: {
+    sidebar0: import("../../redux/sidebar-level-0/sidebar-level-0-slice").Sidebar0State;
+    notifications: import("../../redux/notifications/notifications-slice").NotificationSliceData;
+  },
+  itemId: string,
+): any {
+  throw new Error("Function not implemented.");
+}
