@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { memo, useState } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -10,11 +10,18 @@ import {
   useDraggable,
   useDroppable,
   DragStartEvent,
+  DragEndEvent,
 } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
-import { useAppSelector } from "@/redux/redux-hooks";
-import { ___ROOT, selectItemById, selectItemsById } from "@/redux/sidebar-level-1/sidebar-level-1-slice";
+import { useAppDispatch, useAppSelector } from "@/redux/redux-hooks";
+import {
+  ___ROOT,
+  selectChildrenOfItem,
+  selectItemById,
+  selectItemsById,
+  sidebar1Moved,
+} from "@/redux/sidebar-level-1/sidebar-level-1-slice";
 
 interface ItemType {
   id: number;
@@ -73,23 +80,28 @@ function DragAndDroppable({ id, children }: { id: number | string; children: Rea
 //   );
 // }
 
-function TreeNode({ itemId }: { itemId: string }) {
-  const item = useAppSelector((state) => selectItemById(state, itemId));
-  // const children = useAppSelector((state) => selectChildrenOfItem(state, itemId));
+const TreeNode = memo(
+  ({ itemId }: { itemId: string }) => {
+    const item = useAppSelector((state) => selectItemById(state, itemId));
+    const children = useAppSelector((state) => selectChildrenOfItem(state, itemId));
 
-  return (
-    <div>
-      {`${item.type}: ${item.name}`}
-      {item.childrenIds?.map((c_id) => {
-        return (
-          <DragAndDroppable key={item.id} id={c_id}>
-            <TreeNode itemId={c_id} />
-          </DragAndDroppable>
-        );
-      })}
-    </div>
-  );
-}
+    console.log(itemId, "is updating children: ", children);
+
+    return (
+      <div>
+        {`${item.type}: ${item.name}`}
+        {children?.map((c_id) => {
+          return (
+            <DragAndDroppable key={c_id} id={c_id}>
+              <TreeNode itemId={c_id} />
+            </DragAndDroppable>
+          );
+        })}
+      </div>
+    );
+  },
+  (prevProps, nextProps) => prevProps.itemId === nextProps.itemId,
+);
 
 function Level1Sidebar() {
   // const items: ItemType[] = [
@@ -165,10 +177,14 @@ function Level1Sidebar() {
   //   },
   // ];
   const [activeId, setActiveId] = useState<string | number | null>(null);
+  const _root = useAppSelector((state) => selectItemById(state, ___ROOT.id));
+  const dispatch = useAppDispatch();
 
   return (
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <TreeNode itemId={___ROOT.id} />
+      <Droppable id={_root.id}>
+        <TreeNode itemId={_root.id} />
+      </Droppable>
       <DragOverlay>{activeId ? <div>Item selected id: {activeId}</div> : null}</DragOverlay>
     </DndContext>
   );
@@ -178,8 +194,12 @@ function Level1Sidebar() {
     setActiveId(event.active.id);
   }
 
-  function handleDragEnd() {
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
     setActiveId(null);
+    if (over && active.id !== over.id) {
+      dispatch(sidebar1Moved({ movedItemId: String(active.id), newParentId: String(over.id) }));
+    }
   }
 
   // return (
@@ -203,12 +223,3 @@ function Level1Sidebar() {
 }
 
 export default Level1Sidebar;
-function selectChildrenOfItem(
-  state: {
-    sidebar0: import("../../redux/sidebar-level-0/sidebar-level-0-slice").Sidebar0State;
-    notifications: import("../../redux/notifications/notifications-slice").NotificationSliceData;
-  },
-  itemId: string,
-): any {
-  throw new Error("Function not implemented.");
-}
