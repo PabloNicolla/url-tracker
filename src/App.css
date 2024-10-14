@@ -86,11 +86,16 @@ body {
   background-color: rgba(100, 100, 100, 0.8);
 }
 
-/* ============================================== No select  ==============================================*/
+/* ============================================== No select ==============================================*/
 /* CSS class to prevent user from selecting text*/
 .no-select {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+/* ============================================== Drag file cursor ==============================================*/
+.dragging-file-cursor {
+  cursor: grabbing;
 }

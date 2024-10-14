@@ -113,6 +113,19 @@ function Level1Sidebar() {
   const selectedItem = useAppSelector((state) => selectItemById(state, String(activeId)));
   const dispatch = useAppDispatch();
 
+  useEffect(() => {
+    if (activeId !== null) {
+      document.body.classList.add('dragging-file-cursor');
+    } else {
+      document.body.classList.remove('dragging-file-cursor');
+    }
+
+    // Cleanup function
+    return () => {
+      document.body.classList.remove('dragging-file-cursor');
+    };
+  }, [activeId]);
+
   return (
     <div className="no-select flex flex-1 overflow-y-auto overflow-x-hidden hover:overflow-y-scroll">
       <div className="flex w-full min-w-max flex-1 flex-col">
