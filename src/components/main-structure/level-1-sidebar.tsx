@@ -81,19 +81,29 @@ function DragAndDroppable({ id, children }: { id: number | string; children: Rea
 // }
 
 const TreeNode = memo(
-  ({ itemId }: { itemId: string }) => {
+  ({ itemId, depth }: { itemId: string; depth: number }) => {
     const item = useAppSelector((state) => selectItemById(state, itemId));
     const children = useAppSelector((state) => selectChildrenOfItem(state, itemId));
 
-    console.log(itemId, "is updating children: ", children);
+    console.log(itemId, "is updating children: ", children, depth);
+
+    const getBackgroundColor = (depth: number) => {
+      const colors = ["#f0f0f0", "#e0e0e0", "#d0d0d0", "#c0c0c0", "#b0b0b0"];
+      return colors[depth % colors.length];
+    };
 
     return (
-      <div>
+      <div
+        style={{
+          paddingLeft: 20,
+          backgroundColor: getBackgroundColor(depth),
+        }}
+      >
         {`${item.type}: ${item.name}`}
         {children?.map((c_id) => {
           return (
             <DragAndDroppable key={c_id} id={c_id}>
-              <TreeNode itemId={c_id} />
+              <TreeNode itemId={c_id} depth={depth + 1} />
             </DragAndDroppable>
           );
         })}
@@ -183,7 +193,7 @@ function Level1Sidebar() {
   return (
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <Droppable id={_root.id}>
-        <TreeNode itemId={_root.id} />
+        <TreeNode itemId={_root.id} depth={0} />
       </Droppable>
       <DragOverlay>{activeId ? <div>Item selected id: {activeId}</div> : null}</DragOverlay>
     </DndContext>
