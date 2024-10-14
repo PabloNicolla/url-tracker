@@ -78,32 +78,47 @@ const sidebar1Slice = createSlice({
     sidebar1Removed(state, action: PayloadAction<{ itemId: Item["id"] }>) {
       console.log("[SIDEBAR_1_SLICE]: Action sidebar1Removed...");
 
+      const { itemId } = action.payload;
+
       // Block deletion if the itemId does not exist
-      if (!state.byId[action.payload.itemId]) {
-        console.error(`Item with id "${action.payload.itemId}" does not exist. Cannot remove inexistent item.`);
-        return; // Prevent further processing
+      if (!state.byId[itemId]) {
+        console.error(`Item with id "${itemId}" does not exist. Cannot remove inexistent item.`);
+        return;
       }
 
       // Block the operation if trying to remove the "___ROOT"
-      if (action.payload.itemId === ___ROOT.id) {
+      if (itemId === ___ROOT.id) {
         console.error(`[SIDEBAR_1_SLICE]: Cannot remove an item with the reserved "${___ROOT.id}" id.`);
         return;
       }
 
-      const { itemId } = action.payload;
       const updatedById = { ...state.byId };
-      delete updatedById[itemId];
 
-      // Also remove the item from its parent's childrenIds
-      const { parentId } = state.byId[itemId];
-      if (parentId) {
-        updatedById[parentId] = {
-          ...updatedById[parentId],
-          childrenIds: updatedById[parentId].childrenIds.filter((id) => id !== itemId),
-        };
-      }
+      // Helper function to recursively remove an item and its children
+      const removeItemAndChildren = (id: string) => {
+        const item = updatedById[id];
+        if (!item) return;
+
+        // Remove all children recursively
+        item.childrenIds.forEach(removeItemAndChildren);
+
+        // Remove the item from its parent's childrenIds
+        if (item.parentId) {
+          updatedById[item.parentId] = {
+            ...updatedById[item.parentId],
+            childrenIds: updatedById[item.parentId].childrenIds.filter((childId) => childId !== id),
+          };
+        }
+
+        // Delete the item
+        delete updatedById[id];
+      };
+
+      // Start the recursive removal from the target item
+      removeItemAndChildren(itemId);
 
       return {
+        // TODO duplicated Redux and Immer copy?
         ...state,
         byId: updatedById,
       };
@@ -111,31 +126,51 @@ const sidebar1Slice = createSlice({
     sidebar1Moved(state, action: PayloadAction<{ movedItemId: Item["id"]; newParentId: Item["id"] }>) {
       console.log("[SIDEBAR_1_SLICE]: Action sidebar1Moved...");
 
+      const { movedItemId, newParentId } = action.payload;
+
       // Block move if the movedItemId does not exist
-      if (!state.byId[action.payload.movedItemId]) {
-        console.error(`Item with id "${action.payload.movedItemId}" does not exist. Cannot move inexistent item.`);
-        return; // Prevent further processing
+      if (!state.byId[movedItemId]) {
+        console.error(`Item with id "${movedItemId}" does not exist. Cannot move inexistent item.`);
+        return;
       }
 
       // Block move if the newParentId does not exist
-      if (!state.byId[action.payload.newParentId]) {
-        console.error(`Item with id "${action.payload.newParentId}" does not exist. Cannot move to inexistent item.`);
-        return; // Prevent further processing
+      if (!state.byId[newParentId]) {
+        console.error(`Item with id "${newParentId}" does not exist. Cannot move to inexistent item.`);
+        return;
       }
 
-      // Block the operation if trying to remove the "___ROOT"
-      if (action.payload.movedItemId === ___ROOT.id) {
+      // Block the operation if trying to move the "___ROOT"
+      if (movedItemId === ___ROOT.id) {
         console.error(`[SIDEBAR_1_SLICE]: Cannot move an item with the reserved "${___ROOT.id}" id.`);
         return;
       }
 
-      const { movedItemId, newParentId } = action.payload;
       const movedItem = state.byId[movedItemId];
+
+      // Early return if newParent is already the current parent
+      if (movedItem.parentId === newParentId) {
+        console.log(`[SIDEBAR_1_SLICE]: Item "${movedItemId}" is already a child of "${newParentId}". No action needed.`);
+        return;
+      }
+
+      // Check if newParentId is a descendant of movedItemId
+      const isDescendant = (parentId: string, childId: string): boolean => {
+        const parent = state.byId[parentId];
+        if (!parent) return false;
+        if (parent.childrenIds.includes(childId)) return true;
+        return parent.childrenIds.some(id => isDescendant(id, childId));
+      };
+
+      if (isDescendant(movedItemId, newParentId)) {
+        console.error(`[SIDEBAR_1_SLICE]: Cannot move an item into its own descendant.`);
+        return;
+      }
+
       const oldParentId = movedItem.parentId;
       const newParent = state.byId[newParentId];
 
       if (oldParentId) {
-        console.log("old pa", oldParentId);
         const oldParent = state.byId[oldParentId];
         return {
           ...state,
@@ -157,7 +192,6 @@ const sidebar1Slice = createSlice({
         };
       }
 
-      console.log("not found old pa", oldParentId);
       return {
         ...state,
         byId: {
