@@ -26,43 +26,8 @@ function Droppable({ id, children }: Readonly<{ id: number | string; children: R
     id: id,
   });
 
-  const [overHalf, setOverHalf] = useState<"top" | "bottom" | null>(null);
-  const droppableRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    function handlePointerMove(event: PointerEvent) {
-      if (droppableRef.current && isOver) {
-        const rect = droppableRef.current.getBoundingClientRect();
-        const midpoint = rect.top + rect.height / 2;
-
-        // Compare pointer Y position with midpoint
-        if (event.clientY < midpoint) {
-          setOverHalf("top");
-        } else {
-          setOverHalf("bottom");
-        }
-      } else {
-        setOverHalf(null); // Reset when not hovering
-      }
-    }
-
-    if (isOver) {
-      window.addEventListener("pointermove", handlePointerMove);
-    } else {
-      setOverHalf(null); // Reset when drag ends
-    }
-
-    return () => {
-      window.removeEventListener("pointermove", handlePointerMove);
-    };
-  }, [isOver]);
-
   const style = {
-    backgroundColor: isOver
-      ? overHalf === "top"
-        ? "lightblue" // Change color if over the top half
-        : "lightgreen" // Change color if over the bottom half
-      : "white", // Default background
+    backgroundColor: isOver ? "green" : undefined, // Default background
     color: "black",
     transition: "background-color 0.2s ease",
   };
@@ -71,7 +36,6 @@ function Droppable({ id, children }: Readonly<{ id: number | string; children: R
     <div
       ref={(node) => {
         setNodeRef(node);
-        droppableRef.current = node;
       }}
       style={style}
     >
@@ -100,116 +64,46 @@ const TreeNode: React.FC<TreeNodeProps> = memo(
 
     console.log(itemId, "is updating children: ", children, depth);
 
-    const getBackgroundColor = (depth: number) => {
-      const colors = ["#f0f0f0", "#e0e0e0", "#d0d0d0", "#c0c0c0", "#b0b0b0"];
-      return colors[depth % colors.length];
-    };
+    let WrapperDnd = DragAndDroppable;
+
+    if (item.type === "File") {
+      WrapperDnd = Draggable;
+    }
+
+    if (itemId === ___ROOT.id) {
+      WrapperDnd = Droppable;
+    }
 
     return (
-      <div
-        className={`tree-node depth-${depth}`}
-        style={{
-          paddingLeft: 20,
-          // backgroundColor: getBackgroundColor(depth),
-          zIndex: depth,
-        }}
-      >
-        {`${item.type}: ${item.name}`}
-        {children?.map((c_id) => {
-          return (
-            <DragAndDroppable key={c_id} id={c_id}>
-              <TreeNode itemId={c_id} depth={depth + 1} />
-            </DragAndDroppable>
-          );
-        })}
-      </div>
+      <WrapperDnd id={itemId}>
+        <div
+          className={`tree-node depth-${depth}`}
+          style={{
+            paddingLeft: 20,
+            zIndex: depth,
+            borderLeftWidth: 1,
+            borderColor: "black",
+          }}
+        >
+          {`${item.type}: ${item.name}`}
+          {children?.map((c_id) => {
+            return <TreeNode key={c_id} itemId={c_id} depth={depth + 1} />;
+          })}
+        </div>
+      </WrapperDnd>
     );
   },
   (prevProps, nextProps) => prevProps.itemId === nextProps.itemId,
 );
 
 function Level1Sidebar() {
-  // const items: ItemType[] = [
-  //   {
-  //     id: 1,
-  //     title: "Root Folder 1",
-  //     type: "folder",
-  //     depth: 0,
-  //     childrenItems: [
-  //       {
-  //         id: 2,
-  //         title: "Subfolder 1-1",
-  //         type: "folder",
-  //         depth: 1,
-  //         childrenItems: [
-  //           {
-  //             id: 3,
-  //             title: "File 1-1-1",
-  //             type: "file",
-  //             depth: 2,
-  //           },
-  //           {
-  //             id: 4,
-  //             title: "Subfolder 1-1-2",
-  //             type: "folder",
-  //             depth: 2,
-  //             childrenItems: [
-  //               {
-  //                 id: 5,
-  //                 title: "File 1-1-2-1",
-  //                 type: "file",
-  //                 depth: 3,
-  //               },
-  //             ],
-  //           },
-  //         ],
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     id: 6,
-  //     title: "File 1",
-  //     type: "file",
-  //     depth: 0,
-  //   },
-  //   {
-  //     id: 7,
-  //     title: "Root Folder 2",
-  //     type: "folder",
-  //     depth: 0,
-  //     childrenItems: [
-  //       {
-  //         id: 8,
-  //         title: "Subfolder 2-1",
-  //         type: "folder",
-  //         depth: 1,
-  //         childrenItems: [
-  //           {
-  //             id: 9,
-  //             title: "File 2-1-1",
-  //             type: "file",
-  //             depth: 2,
-  //           },
-  //         ],
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     id: 10,
-  //     title: "File 2",
-  //     type: "file",
-  //     depth: 0,
-  //   },
-  // ];
   const [activeId, setActiveId] = useState<string | number | null>(null);
   const _root = useAppSelector((state) => selectItemById(state, ___ROOT.id));
   const dispatch = useAppDispatch();
 
   return (
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <Droppable id={_root.id}>
-        <TreeNode itemId={_root.id} depth={0} />
-      </Droppable>
+      <TreeNode itemId={_root.id} depth={0} />
       <DragOverlay>{activeId ? <div>Item selected id: {activeId}</div> : null}</DragOverlay>
     </DndContext>
   );
