@@ -77,15 +77,17 @@ const TreeNode: React.FC<TreeNodeProps> = memo(
     return (
       <WrapperDnd id={itemId}>
         <div
-          className={`tree-node depth-${depth}`}
+          className={`tree-node relative w-full`}
           style={{
-            paddingLeft: 20,
+            // paddingLeft: 20,
             zIndex: depth,
-            borderLeftWidth: 1,
-            borderColor: "black",
+            // borderLeftWidth: 1,
+            // borderColor: "black",
           }}
         >
-          {`${item.type}: ${item.name}`}
+          <span style={{ marginLeft: 20 * depth }} className="">
+            {`${item.type}: ${item.name}`}
+          </span>
           {children?.map((c_id) => {
             return <TreeNode key={c_id} itemId={c_id} depth={depth + 1} />;
           })}
@@ -102,10 +104,14 @@ function Level1Sidebar() {
   const dispatch = useAppDispatch();
 
   return (
-    <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <TreeNode itemId={_root.id} depth={0} />
-      <DragOverlay>{activeId ? <div>Item selected id: {activeId}</div> : null}</DragOverlay>
-    </DndContext>
+    <div className="flex flex-1 overflow-y-auto overflow-x-hidden hover:overflow-y-scroll">
+      <div className="flex w-full min-w-max flex-1 flex-col">
+        <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+          <TreeNode itemId={_root.id} depth={0} />
+          <DragOverlay>{activeId ? <div>Item selected id: {activeId}</div> : null}</DragOverlay>
+        </DndContext>
+      </div>
+    </div>
   );
 
   function handleDragStart(event: DragStartEvent) {
