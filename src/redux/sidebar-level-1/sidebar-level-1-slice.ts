@@ -6,7 +6,7 @@ import { RootState } from "../store";
 ////////////////////////////////////////////////////////////// State Config
 //////////////////////////////////////////////////////////////
 
-interface Item {
+export interface Item {
   id: string;
   name: string;
   type: "File" | "Folder";
@@ -40,32 +40,49 @@ const sidebar1Slice = createSlice({
   name: "sidebar1",
   initialState,
   reducers: {
-    sidebar1Added(state, action: PayloadAction<{ parentId: Item["id"] | null; newItem: Item }>) {
+    sidebar1Added(state, action: PayloadAction<{ newItem: Item }>) {
       console.log("[SIDEBAR_1_SLICE]: Action sidebar1Added...");
 
+      const newItem = action.payload.newItem;
+
+      // Block adding if the newItem.id already exists
+      if (state.byId[newItem.id]) {
+        console.error(`Item with id "${newItem.id}" already exists. Cannot add duplicate.`);
+        return; // Prevent further processing
+      }
+
       // Block the operation if trying to add to the "___ROOT"
-      if (action.payload.newItem.id === ___ROOT.id) {
+      if (newItem.id === ___ROOT.id) {
         console.error(`[SIDEBAR_1_SLICE]: Cannot add an item with the reserved "${___ROOT.id}" id.`);
         return;
       }
 
-      const parentId = action.payload.parentId ?? ___ROOT.id;
+      const parentId = newItem.parentId ?? ___ROOT.id;
       const parent = state.byId[parentId];
+
+      console.log("qqqqqqqq11111", newItem.parentId);
+      console.log("qqqqqqqq22222", parentId);
 
       return {
         ...state,
         byId: {
           ...state.byId,
-          [action.payload.newItem.id]: action.payload.newItem,
+          [newItem.id]: newItem,
           [parentId]: {
             ...parent,
-            childrenIds: [...parent.childrenIds, action.payload.newItem.id],
+            childrenIds: [...parent.childrenIds, newItem.id],
           },
         },
       };
     },
     sidebar1Removed(state, action: PayloadAction<{ itemId: Item["id"] }>) {
       console.log("[SIDEBAR_1_SLICE]: Action sidebar1Removed...");
+
+      // Block deletion if the itemId does not exist
+      if (!state.byId[action.payload.itemId]) {
+        console.error(`Item with id "${action.payload.itemId}" does not exist. Cannot remove inexistent item.`);
+        return; // Prevent further processing
+      }
 
       // Block the operation if trying to remove the "___ROOT"
       if (action.payload.itemId === ___ROOT.id) {
@@ -94,6 +111,18 @@ const sidebar1Slice = createSlice({
     sidebar1Moved(state, action: PayloadAction<{ movedItemId: Item["id"]; newParentId: Item["id"] }>) {
       console.log("[SIDEBAR_1_SLICE]: Action sidebar1Moved...");
 
+      // Block move if the movedItemId does not exist
+      if (!state.byId[action.payload.movedItemId]) {
+        console.error(`Item with id "${action.payload.movedItemId}" does not exist. Cannot move inexistent item.`);
+        return; // Prevent further processing
+      }
+
+      // Block move if the newParentId does not exist
+      if (!state.byId[action.payload.newParentId]) {
+        console.error(`Item with id "${action.payload.newParentId}" does not exist. Cannot move to inexistent item.`);
+        return; // Prevent further processing
+      }
+
       // Block the operation if trying to remove the "___ROOT"
       if (action.payload.movedItemId === ___ROOT.id) {
         console.error(`[SIDEBAR_1_SLICE]: Cannot move an item with the reserved "${___ROOT.id}" id.`);
@@ -106,6 +135,7 @@ const sidebar1Slice = createSlice({
       const newParent = state.byId[newParentId];
 
       if (oldParentId) {
+        console.log("old pa", oldParentId);
         const oldParent = state.byId[oldParentId];
         return {
           ...state,
@@ -127,6 +157,7 @@ const sidebar1Slice = createSlice({
         };
       }
 
+      console.log("not found old pa", oldParentId);
       return {
         ...state,
         byId: {
@@ -163,7 +194,7 @@ export const { sidebar1Added, sidebar1Moved, sidebar1Removed } = sidebar1Slice.a
 ////////////////////////////////////////////////////////////// Custom Selector Exports
 //////////////////////////////////////////////////////////////
 
-export const selectAuthUser = createSelector(
-  [selectItemsById, (_state: RootState, itemId: Item["id"]) => itemId],
-  (itemsById, itemId) => itemsById[itemId]?.childrenIds.map((childId) => itemsById[childId]),
+export const selectChildrenOfItem = createSelector(
+  [(state: RootState, itemId: Item["id"]) => state.sidebar1.byId[itemId]],
+  (parent) => parent?.childrenIds.map((childId) => childId),
 );
