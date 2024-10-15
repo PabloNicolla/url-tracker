@@ -1,5 +1,17 @@
 import React, { memo, useEffect, useState } from "react";
-import { DndContext, DragOverlay, useDraggable, useDroppable, DragStartEvent, DragEndEvent } from "@dnd-kit/core";
+import {
+  DndContext,
+  DragOverlay,
+  useDraggable,
+  useDroppable,
+  DragStartEvent,
+  DragEndEvent,
+  useSensor,
+  TouchSensor,
+  MouseSensor,
+  useSensors,
+  KeyboardSensor,
+} from "@dnd-kit/core";
 import { useAppDispatch, useAppSelector } from "@/redux/redux-hooks";
 import {
   ___ROOT,
@@ -32,6 +44,7 @@ function Droppable({ id, children }: Readonly<{ id: number | string; children: R
     backgroundColor: isOver ? "green" : undefined, // Default background
     color: "black",
     transition: "background-color 0.2s ease",
+    touchAction: "none",
   };
 
   return (
@@ -174,6 +187,9 @@ const TreeNode: React.FC<TreeNodeProps> = memo(
           <CollapsibleButton />
           <Draggable id={itemId}>
             <div
+              onClick={() => {
+                console.log("clicked");
+              }}
               className={`tree-node relative w-full`}
               style={{
                 zIndex: depth,
@@ -217,10 +233,27 @@ function Level1Sidebar() {
     };
   }, [activeId]);
 
+  const mouseSensor = useSensor(MouseSensor, {
+    // Require the mouse to move by 10 pixels before activating
+    activationConstraint: {
+      tolerance: 5,
+      delay: 300,
+    },
+  });
+  const touchSensor = useSensor(TouchSensor, {
+    // Press delay of 250ms, with tolerance of 5px of movement
+    activationConstraint: {
+      delay: 300,
+      tolerance: 5,
+    },
+  });
+
+  const sensors = useSensors(mouseSensor, touchSensor, useSensor(KeyboardSensor));
+
   return (
     <div className="no-select flex flex-1 overflow-y-auto overflow-x-hidden hover:overflow-y-scroll">
       <div className="flex w-full min-w-max flex-1 flex-col">
-        <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} sensors={sensors}>
           <TreeNode itemId={_root.id} depth={0} />
           <DragOverlay>{selectedItem ? <div>{`${selectedItem.name}`}</div> : null}</DragOverlay>
         </DndContext>
