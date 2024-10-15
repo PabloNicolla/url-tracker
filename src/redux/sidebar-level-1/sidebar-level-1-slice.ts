@@ -1,4 +1,4 @@
-import { createEntityAdapter, createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { RootState } from "../store";
 
@@ -49,7 +49,7 @@ const sidebar1Slice = createSlice({
 
       // Block adding if the newItem.id already exists
       if (state.byId[newItem.id]) {
-        console.error(`Item with id "${newItem.id}" already exists. Cannot add duplicate.`);
+        console.error(`[SIDEBAR_1_SLICE]: Item with id "${newItem.id}" already exists. Cannot add duplicate.`);
         return; // Prevent further processing
       }
 
@@ -61,9 +61,6 @@ const sidebar1Slice = createSlice({
 
       const parentId = newItem.parentId ?? ___ROOT.id;
       const parent = state.byId[parentId];
-
-      console.log("qqqqqqqq11111", newItem.parentId);
-      console.log("qqqqqqqq22222", parentId);
 
       return {
         ...state,
@@ -84,7 +81,7 @@ const sidebar1Slice = createSlice({
 
       // Block deletion if the itemId does not exist
       if (!state.byId[itemId]) {
-        console.error(`Item with id "${itemId}" does not exist. Cannot remove inexistent item.`);
+        console.error(`[SIDEBAR_1_SLICE]: Item with id "${itemId}" does not exist. Cannot remove inexistent item.`);
         return;
       }
 
@@ -132,13 +129,15 @@ const sidebar1Slice = createSlice({
 
       // Block move if the movedItemId does not exist
       if (!state.byId[movedItemId]) {
-        console.error(`Item with id "${movedItemId}" does not exist. Cannot move inexistent item.`);
+        console.error(`[SIDEBAR_1_SLICE]: Item with id "${movedItemId}" does not exist. Cannot move inexistent item.`);
         return;
       }
 
       // Block move if the newParentId does not exist
       if (!state.byId[newParentId]) {
-        console.error(`Item with id "${newParentId}" does not exist. Cannot move to inexistent item.`);
+        console.error(
+          `[SIDEBAR_1_SLICE]: Item with id "${newParentId}" does not exist. Cannot move to inexistent item.`,
+        );
         return;
       }
 
@@ -152,7 +151,9 @@ const sidebar1Slice = createSlice({
 
       // Early return if newParent is already the current parent
       if (movedItem.parentId === newParentId) {
-        console.log(`[SIDEBAR_1_SLICE]: Item "${movedItemId}" is already a child of "${newParentId}". No action needed.`);
+        console.log(
+          `[SIDEBAR_1_SLICE]: Item "${movedItemId}" is already a child of "${newParentId}". No action needed.`,
+        );
         return;
       }
 
@@ -161,7 +162,7 @@ const sidebar1Slice = createSlice({
         const parent = state.byId[parentId];
         if (!parent) return false;
         if (parent.childrenIds.includes(childId)) return true;
-        return parent.childrenIds.some(id => isDescendant(id, childId));
+        return parent.childrenIds.some((id) => isDescendant(id, childId));
       };
 
       if (isDescendant(movedItemId, newParentId)) {
@@ -212,6 +213,7 @@ const sidebar1Slice = createSlice({
     sidebar1ToggleExpanded(state, action: PayloadAction<{ itemId: Item["id"] }>) {
       const { itemId } = action.payload;
       const item = state.byId[itemId];
+      console.log(`[SIDEBAR_1_SLICE]: Action sidebar1ToggleExpanded... ${item.isExpanded}`);
       if (item && item.type === "Folder") {
         item.isExpanded = !item.isExpanded;
       }

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import "./App.css";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "./components/ui/resizable";
-import Level1Sidebar from "./components/main-structure/level-1-sidebar";
-import Level0Sidebar from "./components/main-structure/level-0-sidebar";
+import Level1Sidebar from "./components/main-structure/level-1-sidebar/level-1-sidebar";
 import MainContentView from "./components/main-structure/main-content-view";
-import Level0Header from "./components/main-structure/level-0-header";
+import Level0Header from "./components/main-structure/level-0-header/level-0-header";
+import Level0Sidebar from "./components/main-structure/level-0-sidebar/level-0-sidebar";
 
 export default function App() {
   const [leftPanelSize, setLeftPanelSize] = useState(10);
