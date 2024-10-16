@@ -37,14 +37,14 @@ function Level1Sidebar() {
 
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
-      delay: 500,
-      tolerance: 10,
+      distance: 10,
     },
   });
   const touchSensor = useSensor(TouchSensor, {
     activationConstraint: {
-      delay: 500,
-      tolerance: 10,
+      // delay: 300,
+      // tolerance: 10,
+      distance: 10,
     },
   });
 

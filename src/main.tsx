@@ -1,9 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+
 import App from "./App";
 import { ThemeProvider } from "./contexts/ThemeContext";
-
-import "./index.css"; // This should contain the Tailwind directives
+import "./index.css";
 
 import { Provider } from "react-redux";
 import { store } from "@/redux/store";
