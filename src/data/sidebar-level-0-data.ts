@@ -1,4 +1,4 @@
-import { SidebarItemProps } from "@/components/main-structure/level-0-sidebar-item";
+import { SidebarItemProps } from "@/components/main-structure/level-0-sidebar/level-0-sidebar-item";
 import {
   AiFillBell,
   AiFillHome,

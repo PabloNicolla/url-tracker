@@ -2,22 +2,19 @@ import HomeStructure from "@/components/main-content/home/home-structure";
 import NotificationStructure from "@/components/main-content/notification/notification-structure";
 import QueryStructure from "@/components/main-content/query/query-structure";
 
-enum ContentOptions {
-  HOME,
-  NOTIFICATION,
-  QUERY,
-  SETTINGS,
-}
+import { Sidebar0ItemsIdsType } from "@/data/sidebar-level-0-data";
+import { useAppSelector } from "@/redux/redux-hooks";
+import { selectSelectedSidebar } from "@/redux/sidebar-level-0/sidebar-level-0-slice";
 
-function ContentSelector(content: Readonly<ContentOptions>) {
+function ContentSelector(content: Readonly<Sidebar0ItemsIdsType>) {
   switch (content) {
-    case ContentOptions.HOME:
+    case "Home":
       return <HomeStructure />;
-    case ContentOptions.NOTIFICATION:
+    case "Query":
       return <NotificationStructure />;
-    case ContentOptions.QUERY:
+    case "Notifications":
       return <QueryStructure />;
-    case ContentOptions.SETTINGS:
+    case "Settings":
       return <div>TODO</div>;
     default:
       console.error("[MAIN_CONTENT_MANAGER]: ERROR: Invalid content option given to fn: ContentSelector()");
@@ -30,7 +27,8 @@ function ContentSelector(content: Readonly<ContentOptions>) {
 }
 
 function MainContentManager() {
-  return ContentSelector(ContentOptions.HOME);
+  const sidebar0Id = useAppSelector(selectSelectedSidebar);
+  return ContentSelector(sidebar0Id);
 }
 
 export default MainContentManager;

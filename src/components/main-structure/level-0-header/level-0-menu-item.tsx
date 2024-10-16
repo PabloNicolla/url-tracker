@@ -1,16 +1,18 @@
 import { useState } from "react";
+
+import { useAppDispatch } from "@/redux/redux-hooks";
+import { MenuItemProps, MenuItemAction } from "@/data/header-level-0-data";
+
+import { SelectedMenuActionType } from "@/contexts/MenuSelectedContext";
+import { useMenuSelection } from "@/contexts/MenuSelectionContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu";
-import { useMenuSelection } from "@/contexts/MenuSelectionContext";
-import { SelectedMenuActionType } from "@/contexts/MenuSelectedContext";
-import { useAppDispatch } from "@/redux/redux-hooks";
-import { MenuItemProps, MenuItemAction } from "@/data/header-level-0-data";
+} from "@/components/ui/dropdown-menu";
 
-function MenuItem({ id, title, actions }: MenuItemProps) {
+function MenuItem({ id, title, actions }: Readonly<MenuItemProps>) {
   const { selectMenuHandler } = useMenuSelection();
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useAppDispatch();
