@@ -86,6 +86,17 @@ body {
   background-color: rgba(100, 100, 100, 0.8);
 }
 
+/* ============================================== Hide Scrollbar ==============================================*/
+/* Hide scrollbars for WebKit-based browsers (Chrome, Safari, Edge) */
+.hide-default-scrollbars::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbars for Firefox */
+.hide-default-scrollbars {
+  scrollbar-width: none; /* Hides the scrollbar in Firefox */
+}
+
 /* ============================================== No select ==============================================*/
 /* CSS class to prevent user from selecting text*/
 .no-select {
